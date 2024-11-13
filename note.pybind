@@ -1,0 +1,22 @@
+
+Pybind11 modules are stripped by default.
+To generate the pybind11 module with debug symbols, do the followings.
+(1) Run cmake only.
+(2) go to BUILD_PYBIND_SERIAL/src_pybind/
+	and delete the strip command from the following files.
+		CMakeFiles/pyPerfMonitor.dir/build.make
+		Makefile
+	This can be done using sed as:
+		sed -i 's/strip/echo/g'  \
+				src_pybind/CMakeFiles/pyPerfMonitor.dir/build.make
+		sed -i 's/-DCMAKE_INSTALL_DO_STRIP=1//g' src_pybind/Makefile
+
+(3) go to BUILD_PYBIND_MPI/src_pybind/
+	and delete the strip command from the following files.
+		CMakeFiles/pyMpiPerfMonitor.dir/build.make
+		Makefile
+	This can be done using sed as:
+		sed -i 's/strip/echo/g' \
+				rc_pybind/CMakeFiles/pyMpiPerfMonitor.dir/build.make
+		sed -i 's/-DCMAKE_INSTALL_DO_STRIP=1//g' src_pybind/Makefile
+
