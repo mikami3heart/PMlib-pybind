@@ -22,7 +22,6 @@
 //! @brief  PerfMonitor class Header
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include <map>
 #include <list>
 
@@ -316,9 +315,9 @@ namespace pm_lib {
     /// - [2] merge thread serial/parallel sections
     /// - [3] select the type of the report and start producing the report
     ///
-    /// @param[in] FILE* fc     output file pointer
+    /// @param[in] FILE* fp     output file pointer
     ///
-    ///   @note fcが"" (NULL)の場合は標準出力に出力される
+    ///   @note fpが"" (NULL)の場合は標準出力に出力される
     ///
     /// @note
     /// C++ プログラムで OpenMPパラレル構文の内側で測定区間を定義した場合は、
@@ -328,14 +327,17 @@ namespace pm_lib {
     void report(FILE* fp);
 
 
-    /// PMlibレポートの出力をコントロールするルーチン string引数版 Python用
+    /// PMlibレポートの出力をコントロールする汎用ルーチン report のoverride版
+    ///   @brief
+    /// - [1] stop the Root section
+    /// - [2] merge thread serial/parallel sections
+    /// - [3] select the type of the report and start producing the report
     ///
-    /// @param[in] std::string sfile     file name string
+    /// @param[in] std::string filename     output file name
     ///
-    /// @note
-    ///   ファイルsfileを新規オープンしてreport() を呼び出す
+    ///   @note filenameが"" (NULL)の場合は標準出力に出力される
     ///
-    void pyreport(std::string sfile);
+    void report(std::string filename);
 
 
 
