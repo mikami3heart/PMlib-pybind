@@ -18,6 +18,7 @@ PMlib integrates PAPI HWPC(hardware performance counter) APIs and Power APIs int
 - PAPI library (optional)
 - Power API library (optional)
 - OTF library (optional)
+- Python3
 
 Although MPI and PAPI libraries are optional, they provide the essential multiprocessing capability
 and the hardware performance measurement capability, so are strongly recommended to be included in PMlib
@@ -50,33 +51,42 @@ src_otf_ext/      PMlib Extension of Open Tracer Format interface
 
 ## HOW TO BUILD
 
-Before starting the installation, users should confirm if the software requirement is met.  
-Then, download the PMlib package tar ball to some directory and unpack it.
-The distribution files can be found under the directory PMlib-${version}. Current version is 10.0.
-If the user downloads the tar ball to ${HOME}/pmlib and unpack it there, the distribution
-directory becomes ${HOME}/pmlib/PMlib-10.0.
-Set the shell variable PACKAGE\_DIR pointing to such distribution directory.
-```
-	PACKAGE_DIR=${HOME}/pmlib/PMlib-10.0
-```  
-The installation will proceed under the subdirectory ${PACKAGE\_DIR}/BUILD.  
-Users should also set the shell variable PMLIB\_DIR pointing to the installation destination directory.
-```
-	PMLIB_DIR=${HOME}/usr_local_pmlib
-```  
-Using these shell variables, users should prepare a shell script file describing the build commands.
-The structure of the build commands is as simple as below.
-The only part which needs careful setup is the options to cmake command.
+Before starting the build, it is recommended to check if PMlib is already
+installed on the system by the system administrator and is available through
+some package manager such as Module Environment or Spack.
+These package managers often provide easier method to access and use PMlib,
+without needing the build process by users.
+If PMlib is not found on your system, build and install PMlib as explained
+in the following sections. Building PMlib is fairly straight forward.
 
+For building PMlib, set two shell variables first.
+The shell variable PACKAGE\_DIR should point to the PMlib source files.
+Git clone the PMlib repository in ${PACKAGE\_DIR}.
+The shell variable PMLIB\_DIR should point to the installation destination.
+
+```
+    PACKAGE_DIR=${HOME}/pmlib/PMlib-develop
+    PMLIB_DIR=${HOME}/pmlib/usr_local_pmlib
+```
+These two variables can point to anywhere, although somewhere under
+${HOME} is generally recommended.
 
 ### Build commands
+
+The structure of the build commands is as simple as below.
+Execute cmake to produce Makefiles and make.
+The only part which needs careful setup is the options to cmake command,
+which will be explained next.
+In this example, the build process goes under the subdirectory
+${PACKAGE\_DIR}/BUILD, and the built files will be installed in
+${PMLIB\_DIR}/lib and ${PMLIB\_DIR}/include.
 
 ~~~
 $ cd $PACKAGE_DIR
 $ mkdir BUILD
 $ cd BUILD
 $ cmake [options] ../
-$ # When building python interface with PyBind11, edit two files
+$ # If building python interface with PyBind11, then edit two files
 $ # as shown below before doing make
 $ make
 $ make install
@@ -103,23 +113,24 @@ The default _directory_ is /usr/local/PMlib, which usually requires privilege.
 
 >  Setting this option "yes" specifies building PMlib with MPI library.
 If you link your application with MPI, then PMlib also has to be built `with_MPI=yes`.
+The default is no.
 
 `-D enable_OPENMP=` {no | yes}
 
-> Setting this option "yes" enables measuring OpenMP threads.
+> Setting this option "yes" enables measuring OpenMP threads. The default is no.
 
 `-D with_PAPI=` {no | yes |_directory_}
 
 >  Setting this option "yes" or _directory_ specifies building PMlib with PAPI library
-for automated hardware counter measurement.  
+for automated hardware counter measurement.
 `-Dwith_PAPI=yes` option can detect the system provided default PAPI library in usual cases.
 However in certain cases, users have to specify the appropriate PAPI _directory_ explicitly.
 An example of this is the cross-compiling environment.
 In the cross-compiling environment, there can be multiple PAPI libraries on the system,
 one for the current platform and another for the target platform.
-See examples in 4. INSTALLATION EXAMPLES section.
 Another example of this is when the OS provided PAPI library is obsolete for some reason,
 and the appropriate PAPI is installed under some alternative directory.
+The default is no.
 
 `-D with_POWER=` {no | yes | _directory_}
 
@@ -127,17 +138,20 @@ and the appropriate PAPI is installed under some alternative directory.
 Power API developed by Sandia National Laboratory is integrated into PMlib.
 Specifying `-Dwith_POWER=yes` should detect the correct path on these systems.
 In case not, specify this option with _directory_ pointing to the installed Power API library.
+The default is no.
 
 `-D with_OTF=` {no | _directory_}
 
 >  This option is for linkling OTF (Open Trace Format) library with PMlib.
 Specify this option with the _directory_ pointing to the installed OTF library.
+The default is no.
 
 `-D enable_PreciseTimer=` {no| yes}
 
 > This option enables the precise timer for high resolution measurement.
 Precise timers are currently supported for supercomputer Fugaku, Fujitsu FX1000, Intel Xeon servers.
-Setting this option "yes" is equivalent to adding the C++ compiler option `-D CMAKE_CXX_FLAGS="-DUSE\_PRECISE\_TIMER"`
+Setting this option "yes" is equivalent to adding the C++ compiler option `-D CMAKE_CXX_FLAGS="-DUSE\_PRECISE\_TIMER", and adding the extended libraries`
+The default is no.
 
 `-D with_example=` {no| yes}
 
@@ -165,35 +179,42 @@ Setting this option "yes" is equivalent to adding the C++ compiler option `-D CM
 
 >  This option can be used for specifying a predefined toolchain file "file-name" for a specific platforms.
 
-### Default option values
-~~~
-with_MPI = no
-enable_OPENMP = no
-with_PAPI = no
-with_POWER = no
-with_OTF = no
-enable_PreciseTimer = no
-with_example = no
-enable_Fortran = no
-~~~
+`-D with_PYTHON=` {no | yes}
 
-CC/CXX/F90/FC and other environment variables must be set for choosing the right compilers.
+> This option turns on building PMlib Python APIs. Default is no.
+
+`-D pybind11_ROOT=` "${PYBIND11_ROOT}" 
+
+> For building PMlib Python APIs, PMlib requires PyBind11 standard templates.
+If the previous `with_PYTHON`  option is set `yes`,
+then this option must also be set pointing to the PyBind11 top directory.
+
+
+
+### Compiler option values
+
+Compiler options can be given as the options to cmake.
 The default compiler options are described in `cmake/CompilerOptionSelector.cmake` file.
-See BUILD OPTION section in CMakeLists.txt for details.
+On some systems the compiler names should be given as the environment variables
+such as CXX/CC/F90/FC.
+There are Toolchain cmake files which define the compiler names for
+several systems. See cmake/Toolchan_${system}.cmake.
 
 
 ### Cmake Examples
 
 #### Supercomputer Fugaku clang mode compiler
 
-##### MPI version, cross compiling on login node
+##### MPI version with Python APIs enabled, compiling on compute node
 
 ~~~
-cmake command example for supercomputer Fugaku - login node clang mode MPI x OpenMP
+cmake command example for supercomputer Fugaku - compute node clang mode MPI x OpenMP
+Note that PYTHON modules can be compiled and linked on compute node only,
+i.e. cross compiling Python on login node is not available.
 
-$ CXXFLAGS="--std=c++11 -Nclang -Kocl -Nnofjprof -DUSE_PRECISE_TIMER -Nfjcex "
-$ CFLAGS="--std=c11 -Nclang -Kocl -Nnofjprof "
-$ FFLAGS="-Kocl -Nnofjprof "
+$ CXXFLAGS="--std=c++11 -Nclang -Kocl "
+$ CFLAGS="--std=c11 -Nclang -Kocl "
+$ FFLAGS="-Kocl "
 $ PAPI_DIR=/opt/FJSVxos/devkit/aarch64/rfs/usr
 $ PMLIB_DIR=${HOME}/pmlib/usr_local_pmlib
 $ PACKAGE_DIR=${HOME}/pmlib/PMlib-9.1
@@ -211,7 +232,14 @@ $ cmake -DINSTALL_DIR=${PMLIB_DIR} \
 		-Dwith_POWER=yes \
 		-Dwith_example=yes \
 		-Denable_Fortran=yes \
+		-Denable_PreciseTimer=yes \
+		-Dwith_PYTHON=yes \
+		-Dpybind11_ROOT="${PYBIND11_ROOT}" \
 		../
+$ # If `-Dwith_PYTHON=yes` is set, the next two lines are necessary.
+$   sed -i 's/strip/echo/g'   src_pybind/CMakeFiles/pyPerfMonitor.dir/build.make
+$   sed -i 's/-DCMAKE_INSTALL_DO_STRIP=1//g' src_pybind/Makefile
+$ # endif
 $ make
 $ make install
 ~~~
@@ -248,6 +276,9 @@ PGI compiler:
 ~~~
 
 Above compiler options should be set as CMAKE\_\*\_FLAGS options to cmake command.  
+
+##### INTEL serial version build example
+
 Actual cmake command example for Intel compiler on Intel Xeon platform is shown below.
 
 ~~~
@@ -299,6 +330,8 @@ PGI compiler:
 	MPI compiler command : C++:mpic++ CC:mpicc F90:mpif90 FC:mpif90
 ~~~
 
+##### INTEL MPI version build example
+
 Actual cmake command example for Intel compiler on Intel Xeon platform is shown below.
 Note that, not only the MPI compiler command, but also the serial compilers are set for Intel cmake.
 
@@ -333,7 +366,7 @@ $ make install
 
 
 
-## HOW TO COMPILE AND RUN
+## HOW TO RUN YOUR APPLICATION WITH PMLIB
 
 ### DOCUMENTS FOR COMPILING AND RUNNING THE APPLICATION WITH PMLIB
 
@@ -352,8 +385,9 @@ doc/scripts/
 doc/Readme.md : How to generate the detail API document with Doxygen
 ~~~
 
-* If you specify the cmake option by `-Denable_example=yes`, the test programs
-under the example direcoty are built as example1,2,..,5 executables.
+* If you specify the cmake option `-Denable_example=yes`, the test programs
+calling PMlib are compiled and saved as example1, example2,.. 
+under the example direcoty.
 
 * More example source programs, compile and run scripts, some logs can be found
 under doc/ directory.
@@ -380,9 +414,8 @@ To enable this feature, PMlib must be built with PAPI option enabled.
 `POWER_CHOOSER=(NODE|NUMA|PARTS|OFF)`
 
 If this environment variable is set, PMlib detects the POWER API supported devices and collect the data from them.
-The power consumption information is recorded in rather coarse manner, and the overhead to collect the data
-from those devices tends to be heavy. It is recommended to set this value as OFF (default) 
-for the measurement that requires precise time resolution.
+The power consumption information is recorded in rather coarse granularity, and the overhead to collect the data from those devices tends to be heavy.
+For the performance measurement that requires precise time resolution, it is recommended to set this value as OFF.
 To enable this feature, PMlib must be built with Power API option enabled.
 
 `BYPASS_PMLIB=YES`
