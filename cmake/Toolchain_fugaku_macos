@@ -1,0 +1,36 @@
+###################################################################################
+#
+# PMlib - Performance Monitor Library
+#
+# Copyright (c) 2010-2011 VCAD System Research Program, RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2012-2019 RIKEN Center for Computational Science (R-CCS), RIKEN.
+# All rights reserved.
+#
+# Copyright (c) 2016-2019 Research Institute for Information Technology(RIIT), Kyushu University.
+# All rights reserved.
+#
+###################################################################################
+
+set(CMAKE_SYSTEM_NAME Linux)
+
+include(CMakeForceCompiler)
+
+if(with_MPI)
+	set(CMAKE_C_COMPILER mpicc)
+	set(CMAKE_CXX_COMPILER mpic++)
+	set(CMAKE_Fortran_COMPILER mpifortran)
+else()
+	set(CMAKE_C_COMPILER cc)
+	set(CMAKE_CXX_COMPILER c++)
+	set(CMAKE_Fortran_COMPILER gfortran)
+endif()
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+set(TARGET_ARCH "macos")
+
+

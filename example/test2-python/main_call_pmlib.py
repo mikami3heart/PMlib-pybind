@@ -1,8 +1,4 @@
-#   import sys
-#   sys.path.append('/home/rccs-hud/a02035/pmlib/usr_local_pmlib/fugaku-pybind/lib')
-#   sys.path.append('./')
-#   import pyPMlib
-import pyPerfMonitor
+
 import pyPerfMonitor
 
 pmlib = pyPerfMonitor.PerfMonitor()
@@ -15,7 +11,6 @@ for i in range(n): add=add+10.0*i
 pmlib.stop("section-X")
 print("<python main> computed %d F.P.ops add=", 3*n, add)
 
-#   pmlib.stop("section-Y", 0.5, 3)
-#   pmlib.stop(label="section-Z", flopPerTask=0.9, iterationCount=10)
-pmlib.report("perf-report.txt")
+pmlib.report("")	# report is written to stdout
+#   pmlib.report("perf-report.txt")   # report can be written to a separate file
 

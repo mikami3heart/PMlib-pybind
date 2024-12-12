@@ -56,8 +56,14 @@ endif()
 
 #### Test2 : Python BINDING
 
-
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 )
 pybind11_add_module(test2-pyPMlib SHARED pyPerfMonitor.cpp)
+
+
+#	add_executable(test2-pyPMlib  ./pyPerfMonitor.cpp)
+#	if(with_MPI)
+#	else()
+#	  add_test(TEST_2 test2-pyPMlib )
+#	endif()
 

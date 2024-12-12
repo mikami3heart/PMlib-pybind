@@ -291,9 +291,6 @@ endif()
 if(OPT_OTF)
   add_subdirectory(src_otf_ext)
 endif()
-if(with_example)
-  add_subdirectory(example)
-endif()
 if(OPT_PYTHON)
   add_subdirectory(src_pybind)
 endif()
@@ -328,6 +325,9 @@ install(TARGETS pyMpiPerfMonitor DESTINATION lib)
 else()
 endif()
 
+if(with_example)
+  add_subdirectory(example)
+endif()
 #######
 # Installer
 #######

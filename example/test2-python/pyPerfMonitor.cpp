@@ -17,7 +17,7 @@ PYBIND11_MODULE(pyPerfMonitor, m) {
 	.def("stop",  &PerfMonitor::stop, py::arg("label")="default", py::arg("flopPerTask")=0.0, py::arg("iterationCount")=1)
 	//	if only the first string argument is used.
     //	.def("stop",  &stop,   py::arg(), py::arg(), py::arg());
-    .def("report", &PerfMonitor::report, py::arg())
+    .def("report", &PerfMonitor::pyreport, py::arg())
 	//	.def("reportfile", &PerfMonitor::reportfile, py::arg())
     .def("setProperties", &PerfMonitor::setProperties, py::arg(), py::arg(), py::arg());
         // only the first string argument is used.
