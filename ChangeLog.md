@@ -1,7 +1,10 @@
-# PMlib - Performance Monitor library
+# PMlib-pybind - Performance Monitor library for Python
 
 ## REVISION HISTORY
 
+---
+- 2024-12-12 Version 10.2
+  - Newly developed Python API is maintained in this separate repository
 
 ---
 - 2024-07-17 Version 9.2.0
